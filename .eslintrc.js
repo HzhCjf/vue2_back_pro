@@ -21,6 +21,8 @@ module.exports = {
         "allowFirstLine": false
       }
     }],
+    "no-console": "off",
+    "indent": ["error", 2],
     "vue/singleline-html-element-content-newline": "off",
     "vue/multiline-html-element-content-newline":"off",
     "vue/name-property-casing": ["error", "PascalCase"],
