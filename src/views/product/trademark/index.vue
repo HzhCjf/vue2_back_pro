@@ -178,7 +178,7 @@ export default {
     pageChangeHandler(newValue) {
       this.page = newValue;
 
-      console.log(newValue);
+      // console.log(newValue);
       this.gerTrademarkList();
     },
     // 每页条数的改变
@@ -201,6 +201,7 @@ export default {
         console.log(this.formData);
         this.isShowDialog = true;
       }
+      this.$refs.formRef.resetFields()
     },
     // 关闭对话框
     closeDialog() {
@@ -249,7 +250,7 @@ export default {
           
           this.$message.success(this.dialogTitle + "成功");
         } else {
-          this.$message.error(this.dialogTitle + "失败");
+          // this.$message.error(this.dialogTitle + "失败");
         }
       });
     },
