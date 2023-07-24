@@ -34,7 +34,7 @@ export const constantRoutes = [
     path: '/login',
     name: 'Login',
     component: () => import('@/views/login/index.vue'),
-      hidden: true,
+    hidden: true,
   },
 
   {
@@ -47,6 +47,7 @@ export const constantRoutes = [
   {
     path: '/',
     component: () => import('@/layout/index.vue'),
+    name:'frontPage',
     redirect: '/home',
     children: [{
       path: 'home',
@@ -58,6 +59,12 @@ export const constantRoutes = [
       }
     }]
   },
+  // 404 page must be placed at the end !!!
+  // { path: '*', redirect: '/404', hidden: true ,name:'NotFound'}
+]
+
+
+export const allAsyncRoutes = [
   {
     path: '/acl',
     component: () => import('@/layout/index.vue'),
@@ -69,7 +76,7 @@ export const constantRoutes = [
     },
     children: [
       {
-        path: 'user/list',
+        path: '/acl/user/list',
         name: 'User',
         component: () => import('@/views/acl/user/index.vue'),
         meta: {
@@ -94,7 +101,7 @@ export const constantRoutes = [
       //   }
       // },
       {
-        path: 'permission/list',
+        path: '/acl/permission/list',
         name: 'Permission',
         component: () => import('@/views/acl/permission/index.vue'),
         meta: {
@@ -114,7 +121,7 @@ export const constantRoutes = [
     },
     children: [
       {
-        path: 'trademark/list',
+        path: '/product/trademark/list',
         name: 'Trademark',
         component: () => import('@/views/product/trademark/index.vue'),
         meta: {
@@ -130,7 +137,7 @@ export const constantRoutes = [
       //   }
       // },
       {
-        path: 'sku/list',
+        path: '/product/sku/list',
         name: 'Sku',
         component: () => import('@/views/product/sku/index.vue'),
         meta: {
@@ -147,18 +154,15 @@ export const constantRoutes = [
       // },
     ]
   },
-  // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
 ]
-
 const createRouter = () => new Router({
-  // mode: 'history', // require service support
+  mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRoutes
 })
 
 const router = createRouter()
-
+// new Router({routes: constantRoutes})
 // Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
 export function resetRouter() {
   const newRouter = createRouter()

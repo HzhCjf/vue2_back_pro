@@ -5,12 +5,14 @@ import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 import { getToken } from '@/utils/auth' // get token from cookie
 import getPageTitle from '@/utils/get-page-title'
+import router2 from '@/router/router2'
+import { constantRoutes, allAsyncRoutes } from "@/router";
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
 const whiteList = ['/login'] // no redirect whitelist
 
-router.beforeEach(async(to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   // start progress bar
   NProgress.start()
 
@@ -28,13 +30,29 @@ router.beforeEach(async(to, from, next) => {
     } else {
       const hasGetUserInfo = store.getters.name
       if (hasGetUserInfo) {
-        next()
+        if(to.name){
+          next()
+        }else{
+          next('/')
+        }
+        // next()
       } else {
         try {
           // get user info
           await store.dispatch('user/getInfo')
-
-          next()
+          // if (router.resolve(to).name) {
+          //   console.log("有权限看");
+          //   next(to);
+          // } else {
+          //   if (router2.resolve(to).name) {
+          //     console.log("没有权限看");
+          //     next("/");
+          //   } else {
+          //     console.log("没有该路由");
+          //     next("/404");
+          //   }
+          // }
+          next(to)
         } catch (error) {
           // remove token and go to login page to re-login
           await store.dispatch('user/resetToken')
