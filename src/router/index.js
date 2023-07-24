@@ -83,23 +83,25 @@ export const allAsyncRoutes = [
           title: '用户管理'
         }
       },
-      // {
-      //   path: 'role/list',
-      //   name: 'Role',
-      //   component: () => import('@/views/acl/role/index.vue'),
-      //   meta: {
-      //     title: '角色管理'
-      //   }
-      // },
-      // {
-      //   path: 'roleAuth/list',
-      //   name: 'RoleAuth',
-      //   component: () => import('@/views/acl/role/roleAuth.vue'),
-      //   meta: {
-      //     title: '角色权限管理',
-      //     hidden: true
-      //   }
-      // },
+      {
+        path: 'role/list',
+        name: 'Role',
+        component: () => import('@/views/acl/role/index.vue'),
+        meta: {
+          title: '角色管理'
+        }
+      },
+      {
+        path: 'roleAuth/list',
+        name: 'RoleAuth',
+        component: () => import('@/views/acl/role/roleAuth.vue'),
+        meta: {
+          title: '角色权限管理',
+          
+        },
+        hidden: true,
+        props:true
+      },
       {
         path: '/acl/permission/list',
         name: 'Permission',

@@ -2,9 +2,15 @@
   <div>
     <el-card shadow="hover" :style="{ margin: '20px' }">
       <template #header>
-        <el-button type="primary" icon="el-icon-plus" @click="addTrademark()"
-          >添加</el-button
-        >
+        <span>
+          <el-button
+            v-permission="'btn.Trademark.add'"
+            type="primary"
+            icon="el-icon-plus"
+            @click="addTrademark()"
+            >添加</el-button
+          >
+        </span>
       </template>
 
       <el-table :data="trademarkList">
@@ -17,62 +23,28 @@
         </el-table-column>
         <el-table-column label="操作">
           <template v-slot="{ row }">
-            <el-button
-              type="warning"
-              icon="el-icon-edit-outline"
-              @click="addTrademark(row)"
-              >修改</el-button
-            >
-            <el-button
-              type="danger"
-              icon="el-icon-delete"
-              @click="deleteTrademark(row)"
-              >删除</el-button
-            >
+            <span>
+              <el-button
+                type="warning"
+                icon="el-icon-edit-outline"
+                @click="addTrademark(row)"
+                v-permission="'btn.Trademark.update'"
+                >修改</el-button
+              >
+            </span>
+            <span>
+              <el-button
+                type="danger"
+                icon="el-icon-delete"
+                @click="deleteTrademark(row)"
+                v-permission="'btn.Trademark.remove'"
+                >删除</el-button
+              >
+            </span>
           </template>
         </el-table-column>
       </el-table>
 
-      <el-dialog
-        :title="dialogTitle + '品牌'"
-        @close="closeDialog"
-        :visible.sync="isShowDialog"
-        top="0"
-      >
-        <template v-slot>
-          <el-form
-            :model="formData"
-            label-width="100px"
-            :rules="rules"
-            ref="formRef"
-          >
-            <el-form-item prop="tmName" label="品牌名称">
-              <el-input v-model="formData.tmName"></el-input>
-            </el-form-item>
-            <el-form-item label="品牌LOGO" prop="logoUrl">
-              <el-upload
-                :action="uploadUrl"
-                list-type="picture-card"
-                :show-file-list="false"
-                :on-success="addTrademarkLogoUrl"
-                :before-upload="beforeUpload"
-              >
-                <img
-                  v-if="formData.logoUrl"
-                  :src="formData.logoUrl"
-                  alt=""
-                  style="width: 148px; height: 148px"
-                />
-                <i class="el-icon-plus"></i>
-              </el-upload>
-            </el-form-item>
-          </el-form>
-        </template>
-        <template #footer>
-          <el-button @click="cancelDialog">取消</el-button>
-          <el-button type="primary" @click="addTrademarkSure()">确定</el-button>
-        </template>
-      </el-dialog>
       <el-pagination
         style="margintop: 20px"
         :total="total"
@@ -84,6 +56,47 @@
         layout="prev, pager, next, jumper,sizes, ->, total"
       ></el-pagination>
     </el-card>
+    <el-dialog
+      :title="dialogTitle + '品牌'"
+      @close="closeDialog"
+      :visible.sync="isShowDialog"
+      top="0"
+      :model="formData"
+    >
+      <template v-slot>
+        <el-form
+          :model="formData"
+          label-width="100px"
+          :rules="rules"
+          ref="formRef"
+        >
+          <el-form-item prop="tmName" label="品牌名称">
+            <el-input v-model="formData.tmName"></el-input>
+          </el-form-item>
+          <el-form-item label="品牌LOGO" prop="logoUrl">
+            <el-upload
+              :action="uploadUrl"
+              list-type="picture-card"
+              :show-file-list="false"
+              :on-success="addTrademarkLogoUrl"
+              :before-upload="beforeUpload"
+            >
+              <img
+                v-if="formData.logoUrl"
+                :src="formData.logoUrl"
+                alt=""
+                style="width: 148px; height: 148px"
+              />
+              <i class="el-icon-plus"></i>
+            </el-upload>
+          </el-form-item>
+        </el-form>
+      </template>
+      <template #footer>
+        <el-button @click="cancelDialog">取消</el-button>
+        <el-button type="primary" @click="addTrademarkSure()">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -188,20 +201,21 @@ export default {
     },
     // 添加按钮
     addTrademark(row) {
+      this.isShowDialog = true;
       if (row) {
-        this.dialogTitle = "修改";
-        this.formData = row;
+        this.formData = { ...row };
         this.isShowDialog = true;
+        this.dialogTitle = "修改";
       } else {
-        this.dialogTitle = "添加";
         this.formData = {
           tmName: "",
           logoUrl: "",
         };
-        console.log(this.formData);
-        this.isShowDialog = true;
+        this.dialogTitle = "添加";
       }
-      this.$refs.formRef.resetFields()
+      this.$nextTick(() => {
+        this.$refs.formRef.clearValidate();
+      });
     },
     // 关闭对话框
     closeDialog() {
@@ -244,10 +258,9 @@ export default {
               this.isShowDialog = false;
               this.page = Math.ceil((this.total + 1) / this.limit);
               this.gerTrademarkList();
-              
             } catch (e) {}
           }
-          
+
           this.$message.success(this.dialogTitle + "成功");
         } else {
           // this.$message.error(this.dialogTitle + "失败");
@@ -259,8 +272,8 @@ export default {
       try {
         await reqDeleteTrademark(row.id);
         this.$message.success("删除成功");
-        if(this.trademarkList.length <= 1){
-          this.page = this.page - 1
+        if (this.trademarkList.length <= 1) {
+          this.page = this.page - 1;
         }
         this.gerTrademarkList();
       } catch (e) {}

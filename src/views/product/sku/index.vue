@@ -19,33 +19,50 @@
         <el-table-column label="价格(元)" prop="price"></el-table-column>
         <el-table-column label="操作" width="300">
           <template v-slot="{ row }">
-            <el-button
-              v-if="row.isSale === 0"
-              type="info"
-              icon="el-icon-top"
-              @click="onSaleHandler(row.id)"
-            ></el-button>
-            <el-button
-              v-else
-              type="success"
-              icon="el-icon-bottom"
-              @click="cancelSaleHandler(row.id)"
-            ></el-button>
-            <el-button
-              type="primary"
-              icon="el-icon-edit-outline"
-              @click="$message.success('需要100000000000才能继续进入')"
-            ></el-button>
-            <el-button
-              type="info"
-              icon="el-icon-info"
-              @click="drawerHandler(row.id)"
-            ></el-button>
-            <el-button type="danger" icon="el-icon-delete" @click="deleteSku(row.id)"></el-button>
+            <span>
+              <el-button
+                v-if="row.isSale === 0"
+                type="info"
+                icon="el-icon-top"
+                @click="onSaleHandler(row.id)"
+                v-permission="'btn.Sku.updown'"
+              ></el-button>
+              <el-button
+                v-else
+                type="success"
+                icon="el-icon-bottom"
+                @click="cancelSaleHandler(row.id)"
+                v-permission="'btn.Sku.updown'"
+              ></el-button>
+            </span>
+            <span>
+              <el-button
+                type="primary"
+                icon="el-icon-edit-outline"
+                @click="$message.success('需要100000000000才能继续进入')"
+                v-permission="'btn.Sku.update'"
+              ></el-button>
+            </span>
+            <span>
+              <el-button
+                type="info"
+                icon="el-icon-info"
+                @click="drawerHandler(row.id)"
+                v-permission="'btn.Sku.detail'"
+              ></el-button>
+            </span>
+            <span>
+              <el-button
+                type="danger"
+                icon="el-icon-delete"
+                @click="deleteSku(row.id)"
+                v-permission="'btn.Sku.remove'"
+              ></el-button>
+            </span>
           </template>
         </el-table-column>
       </el-table>
-      
+
       <el-drawer
         v-if="skuByIdList"
         :title="skuByIdList.skuName"
@@ -91,15 +108,31 @@
           <el-col class="title" :span="6">商品图片</el-col>
           <el-col class="content" :span="16">
             <el-carousel indicator-position="outside">
-              <el-carousel-item v-for="item in skuByIdList.skuImageList" :key="item">
-                <img :src="item.imgUrl" style="width: 100%;height: 100%;" alt="">
+              <el-carousel-item
+                v-for="item in skuByIdList.skuImageList"
+                :key="item"
+              >
+                <img
+                  :src="item.imgUrl"
+                  style="width: 100%; height: 100%"
+                  alt=""
+                />
               </el-carousel-item>
             </el-carousel>
           </el-col>
         </el-row>
       </el-drawer>
 
-      <el-pagination style="margintop: 20px" :total="total" :current-page="page" :page-size="limit" @current-change="pageChangeHandler" @size-change="handleSizeChange" :page-sizes="[5, 10, 15]" layout="prev, pager, next, jumper,sizes, ->, total"></el-pagination>
+      <el-pagination
+        style="margintop: 20px"
+        :total="total"
+        :current-page="page"
+        :page-size="limit"
+        @current-change="pageChangeHandler"
+        @size-change="handleSizeChange"
+        :page-sizes="[5, 10, 15]"
+        layout="prev, pager, next, jumper,sizes, ->, total"
+      ></el-pagination>
     </el-card>
   </div>
 </template>
@@ -110,7 +143,7 @@ import {
   reqOnSale,
   reqCancelSale,
   reqSkuByIdList,
-  reqDeleteSku
+  reqDeleteSku,
 } from "@/api/sku";
 export default {
   name: "Sku",
@@ -174,28 +207,27 @@ export default {
     },
 
     // 当前页改变
-    pageChangeHandler(newVal){
-      this.page = newVal
-      this.getSkuList()
+    pageChangeHandler(newVal) {
+      this.page = newVal;
+      this.getSkuList();
     },
 
     // 每页条数改变
-    handleSizeChange(newVal){
-      this.limit = newVal
-      this.getSkuList()
+    handleSizeChange(newVal) {
+      this.limit = newVal;
+      this.getSkuList();
     },
 
     // 删除sku
-    async deleteSku(id){
-      try{
-        await reqDeleteSku(id)
-        this.$message.success('删除成功')
-        this.getSkuList()
-      }catch(e){
-        this.$message.error('删除失败')
+    async deleteSku(id) {
+      try {
+        await reqDeleteSku(id);
+        this.$message.success("删除成功");
+        this.getSkuList();
+      } catch (e) {
+        this.$message.error("删除失败");
       }
-    }
-
+    },
   },
 };
 </script>
