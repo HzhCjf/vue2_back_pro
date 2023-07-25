@@ -5,21 +5,23 @@
       show-checkbox
       node-key="id"
       :default-expanded-keys="[2, 3]"
-      :default-checked-keys="[5]"
+      :default-checked-keys="defaultArr"
       :props="defaultProps"
       :default-expand-all="true"
+      ref="treeRef"
     >
     </el-tree>
 
     <div style="margin: 30px">
-      <el-button type="primary">保存</el-button>
+      <el-button type="primary" @click="AssignPermissions">保存</el-button>
       <el-button @click="$router.push('/acl/role/list')">取消</el-button>
     </div>
   </div>
 </template>
 
 <script>
-import { reqListtoAssign } from "@/api/role";
+import { reqListtoAssign, reqRoloAssignPermissions } from "@/api/role";
+import router from '@/router';
 export default {
   name: "RoleAuth",
   data() {
@@ -29,40 +31,57 @@ export default {
         children: "children",
         label: "name",
       },
-      default: [],
     };
   },
   props: ["row"],
   mounted() {
     this.getAssign();
-    
-    this.recursion(this.permissionMenu)
-    console.log(this.default);
   },
   methods: {
+    // 获取权限数据
     async getAssign() {
-      console.log(this.row.id);
       const result = await reqListtoAssign(this.row.id);
       this.permissionMenu = result.data.children;
-      
     },
-    recursion(data) {
-      // 使用map方法对data进行递归遍历
-      return data.map((item) => {
-          if (item.select == true) {
-            let add =  {
-              id: item.id,
-              label: item.name,
-            };
-            this.default.push(add)
-            console.log(85445);
-          } else if (item.children && item.children.length > 0) {
-            // 递归调用recursion函数处理子节点
-            item.children = this.recursion(item.children);
+
+    // 保存(角色分配权限)
+    async AssignPermissions() {
+      const selectAllId = this.$refs.treeRef.getCheckedKeys(false, true);
+      const semiSelectedId = this.$refs.treeRef.getHalfCheckedKeys();
+      // console.log(selectAllId,semiSelectedId);
+      const ids = selectAllId.concat(semiSelectedId).join(",");
+      try {
+        await reqRoloAssignPermissions(this.row.id, ids);
+        this.$message.success('更改权限成功')
+        router.replace('/acl/role/list')
+        this.getAssign()
+      } catch (e) {
+        this.$message.error('更改权限失败')
+      }
+    },
+  },
+  computed: {
+    // 用递归拿到select为true,并且没有children的叶子的id来进行默认勾选
+    defaultArr() {
+      function recursion(data) {
+        let result = [];
+        data.forEach((item) => {
+          if (
+            item.select === true &&
+            (!item.children || item.children.length === 0)
+          ) {
+            result.push(item.id);
           }
-          return item;
-        })
-        .filter((item) => item);
+          if (item.children && item.children.length > 0) {
+            let childrenResult = recursion(item.children);
+            result = result.concat(childrenResult);
+          }
+        });
+        return result;
+      }
+
+      // 调用递归函数并返回结果
+      return recursion(this.permissionMenu);
     },
   },
 };

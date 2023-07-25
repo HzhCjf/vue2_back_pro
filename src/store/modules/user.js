@@ -1,14 +1,14 @@
 import { login, logout, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import  { resetRouter, allAsyncRoutes, constantRoutes } from '@/router'
+import { resetRouter, allAsyncRoutes, constantRoutes } from '@/router'
 import _ from 'lodash'
 import router from '@/router'
 
 
-function filterUserRouter(routes, userRouter){
-  return routes.filter(r =>{
-    if(r.children && r.children.length > 0){
-      r.children = filterUserRouter(r.children,userRouter)
+function filterUserRouter(routes, userRouter) {
+  return routes.filter(r => {
+    if (r.children && r.children.length > 0) {
+      r.children = filterUserRouter(r.children, userRouter)
     }
     return userRouter.includes(r.name)
   })
@@ -95,8 +95,8 @@ const actions = {
         commit('SET_BUTTONS', buttons)
 
         // console.log(fliterUserRouter(_.clone(allAsyncRoutes),routes));
-        const userRouter = filterUserRouter(_.clone(allAsyncRoutes),routes)
-        
+        const userRouter = filterUserRouter(_.clone(allAsyncRoutes), routes)
+
         commit('SET_ROUTES', [...constantRoutes, ...userRouter])
         // console.log(userRouter);
         // router.addRoutes([...userRouter,...constantRoutes])
@@ -116,13 +116,13 @@ const actions = {
   },
 
   // user logout
-  logout({ commit, state }) {
+  logout({ commit, state, dispatch }) {
     return new Promise((resolve, reject) => {
       logout(state.token).then(() => {
         removeToken() // must remove  token  first
         resetRouter()
         commit('RESET_STATE')
-        
+        dispatch('resetToken')
         resolve()
       }).catch(error => {
         reject(error)
@@ -136,13 +136,13 @@ const actions = {
       removeToken() // must remove  token  first
       commit('RESET_STATE')
       // console.log(router.hasRoute);
-      allAsyncRoutes.forEach(r=>{
-        const isEixt = router.hasRoute(r.name)
-        if(isEixt){
-          router.removeRoute(r.name)
+      allAsyncRoutes.forEach(route => {
+        const routeIdx = router.matcher.match(route.path).index;
+        if (routeIdx > -1) {
+          router.matcher.matched.splice(routeIdx, 1);
         }
-      })
-      
+      });
+
       resolve()
     })
   }
